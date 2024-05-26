@@ -18,7 +18,7 @@ func NewComment(db *sqlx.DB) *Comment {
 }
 
 func (r *Comment) CreateComment(userId int, postID int, parentID *string, content string) (*model.Comment, error) {
-	// TODO check is open comments
+	// TODO check is open comments and is postID exists
 	var commentId int
 	var rows string
 	var insertPlacement string

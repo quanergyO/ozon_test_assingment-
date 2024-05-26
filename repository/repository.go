@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/quanergyo/ozon-test-assingment/graph/model"
+	"github.com/quanergyo/ozon-test-assingment/repository/inmemory"
 	"github.com/quanergyo/ozon-test-assingment/repository/postgres"
 )
 
@@ -30,6 +31,12 @@ type Repository struct {
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
+	if db == nil {
+		return &Repository{
+			Post:    inmemory.NewMemoryPost(),
+			Comment: inmemory.NewMemoryComment(),
+		}
+	}
 	return &Repository{
 		Post:    postgres.NewPost(db),
 		Comment: postgres.NewComment(db),

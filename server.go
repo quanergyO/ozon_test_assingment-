@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/quanergyo/ozon-test-assingment/repository"
 	"github.com/quanergyo/ozon-test-assingment/repository/postgres"
@@ -19,6 +21,10 @@ import (
 
 const defaultPort = "8080"
 
+type Mode struct {
+	memory bool
+}
+
 func main() {
 	if err := initConfig(); err != nil {
 		slog.Error("Error: init configs", err)
@@ -34,19 +40,27 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
-	// TODO inmemory repository
-	db, err := postgres.NewDB(postgres.Config{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
-		DBName:   viper.GetString("db.dbname"),
-		SSLMode:  viper.GetString("db.sslmode"),
-		Password: os.Getenv("DB_PASSWORD"),
-	})
 
-	if err != nil {
-		slog.Error("Error: failde to init db connection", err)
-		os.Exit(1)
+	memoryFlag := Mode{}
+	memoryFlag.initFlag()
+
+	var db *sqlx.DB = nil
+
+	if memoryFlag.memory == false {
+		dbCpy, err := postgres.NewDB(postgres.Config{
+			Host:     viper.GetString("db.host"),
+			Port:     viper.GetString("db.port"),
+			Username: viper.GetString("db.username"),
+			DBName:   viper.GetString("db.dbname"),
+			SSLMode:  viper.GetString("db.sslmode"),
+			Password: os.Getenv("DB_PASSWORD"),
+		})
+
+		if err != nil {
+			slog.Error("Error: failde to init db connection", err)
+			os.Exit(1)
+		}
+		db = dbCpy
 	}
 
 	repos := repository.NewRepository(db)
@@ -69,10 +83,11 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
-
-	if err = db.Close(); err != nil {
-		slog.Error("error occured on close db connection:", err)
-		os.Exit(1)
+	if memoryFlag.memory == false {
+		if err := db.Close(); err != nil {
+			slog.Error("error occured on close db connection:", err)
+			os.Exit(1)
+		}
 	}
 	slog.Info("Server shutting down")
 }
@@ -81,4 +96,9 @@ func initConfig() error {
 	viper.AddConfigPath("configs")
 	viper.SetConfigName("config")
 	return viper.ReadInConfig()
+}
+
+func (m *Mode) initFlag() {
+	flag.BoolVar(&m.memory, "memory", false, "memory mode")
+	flag.Parse()
 }
