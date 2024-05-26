@@ -65,7 +65,6 @@ func main() {
 
 	repos := repository.NewRepository(db)
 	resolver := graph.NewResolver(repos)
-
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))

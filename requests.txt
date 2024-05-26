@@ -9,6 +9,7 @@ mutation createPost($userId: ID!, $title: String!, $content: String!, $commentsE
 }
 
 {
+  "userId": 1,
   "title": "Post1",
   "content": "content for post1",
   "commentsEnabled": true

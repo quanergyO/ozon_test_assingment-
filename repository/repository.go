@@ -32,9 +32,10 @@ type Repository struct {
 
 func NewRepository(db *sqlx.DB) *Repository {
 	if db == nil {
+		memoryInstance := inmemory.NewMemoryPost()
 		return &Repository{
-			Post:    inmemory.NewMemoryPost(),
-			Comment: inmemory.NewMemoryComment(),
+			Post:    memoryInstance,
+			Comment: memoryInstance,
 		}
 	}
 	return &Repository{
