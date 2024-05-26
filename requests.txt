@@ -1,0 +1,91 @@
+mutation createPost($userId: ID!, $title: String!, $content: String!, $commentsEnabled: Boolean!) {
+  createPost(userId: $userId, title:$title, content: $content, commentsEnabled: $commentsEnabled) {
+    id
+    userId
+    title
+    content
+    commentsEnabled
+  }
+}
+
+{
+  "title": "Post1",
+  "content": "content for post1",
+  "commentsEnabled": true
+}
+________________________________________________________________________________
+
+mutation updatePost($postId: ID!, $title: String, $content: String, $commentsEnabled: Boolean) {
+  updatePost(postId: $postId, title:$title, content: $content, commentsEnabled: $commentsEnabled) {
+    id
+    userId
+    title
+    content
+    commentsEnabled
+    comments {
+      id
+    }
+  }
+}
+
+{
+  "postId": 1,
+  "title": "Post2",
+  "content": "updateContent"
+}
+
+________________________________________________________________________________
+mutation deletePost($postId: ID!) {
+  deletePost(postId: $postId) {
+    answer
+  }
+}
+
+{
+  "postId": 2
+}
+
+________________________________________________________________________________
+
+query {
+  posts {
+    id
+    userId
+    title
+    content
+    commentsEnabled
+  }
+}
+
+________________________________________________________________________________
+
+mutation createComment($userId: ID!, $postId: ID!, $parentId: ID, $content: String!) {
+  createComment(userId: $userId, postId:$postId, parentId: $parentId, content: $content) {
+    id
+    userId
+    content
+  }
+}
+
+{
+  "userId": 1,
+  "postId": 1,
+  "content": "hello first comment"
+}
+
+________________________________________________________________________________
+
+query($postId: ID!, $page: Int) {
+  comments(postId:$postId, page:$page) {
+    id
+    userId
+    content
+  }
+}
+
+{
+  "postId": 1
+}
+
+________________________________________________________________________________
+
