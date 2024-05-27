@@ -92,8 +92,24 @@ func (r *Post) DeletePost(id int) error {
 }
 
 func (r *Post) GetPost(id int) (*model.Post, error) {
+	var post model.Post
+	rows := fmt.Sprintf("id, userid, title, content, commentsenabled")
+	query := fmt.Sprintf("SELECT %s FROM %s WHERE id=$1", rows, postTable)
+	err := r.db.Get(&post, query, id)
+	if err != nil {
+		return nil, err
+	}
 
-	return &model.Post{}, fmt.Errorf("Not implemented")
+	var comments []*model.Comment
+	rows = "id, userid, postid, parentid, content"
+	query = fmt.Sprintf("SELECT %s FROM %s WHERE postid=$1", rows, commentsTable)
+	if err := r.db.Select(&comments, query, id); err != nil {
+		return nil, err
+	}
+	post.Comments = comments
+
+	return &post, nil
+
 }
 
 func (r *Post) GetAllPosts() ([]*model.Post, error) {

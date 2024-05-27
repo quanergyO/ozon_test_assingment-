@@ -48,7 +48,6 @@ func makeMigration(cfg Config) error {
 		return err
 	}
 	migrationsPath := filepath.Join(wd, "schema/")
-	slog.Info(migrationsPath)
 	databaseURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode)
 	m, err := migrate.New(
 		"file://"+migrationsPath,
